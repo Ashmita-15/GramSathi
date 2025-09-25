@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage.jsx'
 import LoginSignup from './pages/LoginSignup.jsx'
 import PatientDashboard from './pages/PatientDashboard.jsx'
 import DoctorDashboard from './pages/DoctorDashboard.jsx'
+import HospitalDashboard from './pages/HospitalDashboard.jsx'
 import PharmacyDashboard from './pages/PharmacyDashboard.jsx'
 import DoctorsPage from './pages/DoctorsPage.jsx'
 import DoctorDetails from './pages/DoctorDetails.jsx'
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="/login" element={<LoginSignup />} />
           <Route path="/patient" element={<PrivateRoute roles={["patient"]}><PatientDashboard /></PrivateRoute>} />
           <Route path="/doctor" element={<PrivateRoute roles={["doctor"]}><DoctorDashboard /></PrivateRoute>} />
+          <Route path="/hospital" element={<PrivateRoute roles={["hospital"]}><HospitalDashboard /></PrivateRoute>} />
           <Route path="/pharmacy" element={<PrivateRoute roles={["pharmacy"]}><PharmacyDashboard /></PrivateRoute>} />
           <Route path="/doctors" element={<PrivateRoute roles={["patient"]}><DoctorsPage /></PrivateRoute>} />
           <Route path="/doctors/:doctorId" element={<PrivateRoute roles={["patient"]}><DoctorDetails /></PrivateRoute>} />

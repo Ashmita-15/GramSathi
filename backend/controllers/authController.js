@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Hospital from '../models/Hospital.js';
 
 export const register = async (req, res) => {
     try {
@@ -8,7 +9,19 @@ export const register = async (req, res) => {
         const existing = await User.findOne({ email });
         if (existing) return res.status(400).json({ message: 'Email already registered' });
         const passwordHash = await bcrypt.hash(password, 10);
-        const user = await User.create({ name, email, passwordHash, role, age, village, specialization, qualification, availability });
+        
+        let user;
+        if (role === 'hospital') {
+            // Create hospital user
+            user = await User.create({ name, email, passwordHash, role });
+            
+            // For hospital registration, we need additional info in a separate endpoint
+            // since hospital has more fields than what's collected during basic registration
+        } else {
+            // Regular user registration
+            user = await User.create({ name, email, passwordHash, role, age, village, specialization, qualification, availability });
+        }
+        
         return res.status(201).json({ id: user._id, name: user.name, email: user.email, role: user.role });
     } catch (e) {
         return res.status(500).json({ message: e.message });

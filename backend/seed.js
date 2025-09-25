@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import connectDB from './config/db.js';
 import User from './models/User.js';
+import Hospital from './models/Hospital.js';
 import Pharmacy from './models/Pharmacy.js';
 import MedicineStock from './models/MedicineStock.js';
 
@@ -10,6 +11,7 @@ dotenv.config();
 const run = async () => {
     await connectDB();
     await User.deleteMany({});
+    await Hospital.deleteMany({});
     await Pharmacy.deleteMany({});
     await MedicineStock.deleteMany({});
 
@@ -44,8 +46,26 @@ const run = async () => {
         phone: '+91-9999999999'
     });
 
-    // Create pharmacy with enhanced details
-    const pharmacy = await Pharmacy.create({ 
+    // Create second pharmacy owner
+    const pharmacyOwner2 = await User.create({ 
+        name: 'Suresh Pharmacy Owner', 
+        email: 'suresh@pharmacy.com', 
+        passwordHash: pw, 
+        role: 'pharmacy',
+        phone: '+91-8888888888'
+    });
+
+    // Create hospital user
+    const hospitalUser = await User.create({ 
+        name: 'Apollo Hospital Admin', 
+        email: 'hospital@example.com', 
+        passwordHash: pw, 
+        role: 'hospital',
+        phone: '+91-7777777777'
+    });
+
+    // Create first pharmacy (not associated with hospital)
+    const pharmacy1 = await Pharmacy.create({ 
         name: 'Gram Pharmacy & Medical Store', 
         location: 'Sundarpur', 
         address: 'Main Bazaar, Sundarpur Village, District Ludhiana, Punjab - 141001',
@@ -57,6 +77,52 @@ const run = async () => {
         openingHours: { open: '08:00', close: '22:00' },
         ownerId: pharmacyOwner._id
     });
+
+    // Create second pharmacy (to be associated with hospital)
+    const pharmacy2 = await Pharmacy.create({ 
+        name: 'Apollo Hospital Pharmacy', 
+        location: 'Apollo Hospital Campus', 
+        address: 'Apollo Hospital, Main Road, Sundarpur, District Ludhiana, Punjab - 141001',
+        contact: '+91-8888888888',
+        email: 'apollo.pharmacy@example.com',
+        description: 'Pharmacy located inside Apollo Hospital, providing medicines for in-patients and out-patients.',
+        deliveryAvailable: true,
+        deliveryRadius: 3,
+        openingHours: { open: '00:00', close: '23:59' }, // 24/7
+        ownerId: pharmacyOwner2._id
+    });
+
+    // Create hospital
+    const hospital = await Hospital.create({ 
+        name: 'Apollo Hospital', 
+        email: 'hospital@example.com', 
+        phone: '+91-7777777777',
+        location: {
+            type: 'Point',
+            coordinates: [75.85133, 30.90096] // Example coordinates
+        },
+        address: 'Main Road, Sundarpur, District Ludhiana, Punjab - 141001',
+        description: 'Multi-specialty hospital providing comprehensive healthcare services to the community.',
+        contactPerson: 'Dr. Vikram Sharma',
+        website: 'https://www.apollohospitals.com',
+        services: ['General Medicine', 'Pediatrics', 'Obstetrics & Gynecology', 'Orthopedics', 'Dermatology'],
+        ownerId: hospitalUser._id,
+        // Associate the second pharmacy with the hospital
+        pharmacies: [pharmacy2._id]
+    });
+
+    // Update hospital user with hospitalId
+    await User.findByIdAndUpdate(hospitalUser._id, { hospitalId: hospital._id });
+
+    // Update doctors to be associated with hospital
+    await User.updateMany(
+        { role: 'doctor' },
+        { $set: { hospitalId: hospital._id } }
+    );
+
+    // Add doctors to hospital
+    hospital.doctors = [doctor._id];
+    await hospital.save();
 
     // Create sample medicines with detailed information
     const medicines = [
@@ -91,9 +157,10 @@ const run = async () => {
             minQuantity: 20,
             manufacturer: 'FDC Limited',
             prescriptionRequired: false,
-            description: 'For treatment of dehydration due to diarrhea and vomiting.',
-            expiryDate: new Date('2025-08-30')
+              description: 'For treatment of dehydration due to diarrhea and vomiting.',
+              expiryDate: new Date('2025-08-30')
         },
+        // Add more medicines to first pharmacy
         {
             medicineName: 'Amoxicillin 250mg',
             genericName: 'Amoxicillin',
@@ -198,17 +265,116 @@ const run = async () => {
         }
     ];
 
-    // Create medicine stocks
+    // Create medicine stocks for first pharmacy (Gram Pharmacy)
     for (const med of medicines) {
-        await MedicineStock.create({ ...med, pharmacyId: pharmacy._id });
+        await MedicineStock.create({ ...med, pharmacyId: pharmacy1._id });
+    }
+
+    // Create medicines for second pharmacy (Apollo Hospital Pharmacy)
+    const hospitalPharmacyMedicines = [
+        {
+            medicineName: 'Paracetamol 500mg',
+            genericName: 'Paracetamol',
+            brand: 'Calpol',
+            category: 'General',
+            dosage: '500mg',
+            form: 'Tablet',
+            price: 28,
+            mrp: 32,
+            discount: 12.5,
+            quantity: 150,
+            minQuantity: 10,
+            manufacturer: 'GlaxoSmithKline',
+            prescriptionRequired: false,
+            description: 'Pain reliever and fever reducer',
+            expiryDate: new Date('2026-10-31')
+        },
+        {
+            medicineName: 'Ibuprofen 400mg',
+            genericName: 'Ibuprofen',
+            brand: 'Brufen',
+            category: 'Pain Relief',
+            dosage: '400mg',
+            form: 'Tablet',
+            price: 35,
+            mrp: 40,
+            discount: 12.5,
+            quantity: 100,
+            minQuantity: 5,
+            manufacturer: 'Abbott',
+            prescriptionRequired: false,
+            description: 'Anti-inflammatory and pain reliever',
+            expiryDate: new Date('2026-06-30')
+        },
+        {
+            medicineName: 'Ciprofloxacin 500mg',
+            genericName: 'Ciprofloxacin',
+            brand: 'Cipro',
+            category: 'Antibiotics',
+            dosage: '500mg',
+            form: 'Tablet',
+            price: 80,
+            mrp: 95,
+            discount: 15.79,
+            quantity: 75,
+            minQuantity: 5,
+            manufacturer: 'Bayer',
+            prescriptionRequired: true,
+            description: 'Antibiotic used to treat bacterial infections',
+            expiryDate: new Date('2025-12-31')
+        },
+        {
+            medicineName: 'Metformin 500mg',
+            genericName: 'Metformin',
+            brand: 'Glycomet',
+            category: 'Diabetes',
+            dosage: '500mg',
+            form: 'Tablet',
+            price: 60,
+            mrp: 70,
+            discount: 14.29,
+            quantity: 120,
+            minQuantity: 10,
+            manufacturer: 'USV Ltd',
+            prescriptionRequired: true,
+            description: 'Oral anti-diabetic medication',
+            expiryDate: new Date('2026-03-31')
+        },
+        {
+            medicineName: 'Omeprazole 20mg',
+            genericName: 'Omeprazole',
+            brand: 'Omez',
+            category: 'Gastrointestinal',
+            dosage: '20mg',
+            form: 'Capsule',
+            price: 45,
+            mrp: 55,
+            discount: 18.18,
+            quantity: 80,
+            minQuantity: 8,
+            manufacturer: 'Dr. Reddy\'s Labs',
+            prescriptionRequired: true,
+            description: 'Proton pump inhibitor for acid reflux',
+            expiryDate: new Date('2026-01-31')
+        }
+    ];
+
+    // Create medicine stocks for second pharmacy (Apollo Hospital Pharmacy)
+    for (const med of hospitalPharmacyMedicines) {
+        await MedicineStock.create({ ...med, pharmacyId: pharmacy2._id });
     }
 
     console.log('Seeded successfully:');
     console.log('- Patient:', patient.email, '(password: password123)');
     console.log('- Doctor:', doctor.email, '(password: password123)');
-    console.log('- Pharmacy Owner:', pharmacyOwner.email, '(password: password123)');
-    console.log('- Pharmacy:', pharmacy.name);
-    console.log('- Medicines:', medicines.length, 'items created');
+    console.log('- Pharmacy Owner 1:', pharmacyOwner.email, '(password: password123)');
+    console.log('- Pharmacy Owner 2:', pharmacyOwner2.email, '(password: password123)');
+    console.log('- Hospital Admin:', hospitalUser.email, '(password: password123)');
+    console.log('- Pharmacy 1:', pharmacy1.name);
+    console.log('- Pharmacy 2 (Hospital-associated):', pharmacy2.name);
+    console.log('- Hospital:', hospital.name);
+    console.log('- Medicines for Pharmacy 1:', medicines.length, 'items created');
+    console.log('- Medicines for Pharmacy 2:', hospitalPharmacyMedicines.length, 'items created');
     console.log('');
     console.log('You can now:');
     console.log('1. Login as pharmacy owner to manage inventory');
