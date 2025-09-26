@@ -9,6 +9,7 @@ import { attachSocketIO } from './middleware/socketMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 import healthRecordRoutes from './routes/healthRecordRoutes.js';
+import hospitalRoutes from './routes/hospitalRoutes.js';
 import pharmacyRoutes from './routes/pharmacyRoutes.js';
 import symptomCheckerRoutes from './routes/symptomCheckerRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -51,6 +52,7 @@ app.use(attachSocketIO(io)); // Attach socket.io to requests
 app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/records', healthRecordRoutes);
+app.use('/api/hospital', hospitalRoutes);
 app.use('/api/pharmacy', pharmacyRoutes);
 app.use('/api/symptom-checker', symptomCheckerRoutes);
 app.use('/api/users', userRoutes);
@@ -74,7 +76,7 @@ io.on('connection', (socket) => {
         console.log(`Pharmacy ${pharmacyId} joined their room`);
     });
     
-    // WebRTC signaling (existing functionality)
+    // WebRTC signaling (video conferencing)
     socket.on('join-room', (roomId) => {
         socket.join(roomId);
         socket.to(roomId).emit('user-joined', socket.id);
@@ -82,6 +84,16 @@ io.on('connection', (socket) => {
 
     socket.on('signal', ({ roomId, data }) => {
         socket.to(roomId).emit('signal', { from: socket.id, data });
+    });
+
+    // Handle call decline
+    socket.on('call-declined', (roomId) => {
+        socket.to(roomId).emit('call-declined');
+    });
+
+    // Handle call ending
+    socket.on('call-ended', (roomId) => {
+        socket.to(roomId).emit('call-ended');
     });
     
     // Real-time stock updates

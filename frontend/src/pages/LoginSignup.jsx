@@ -54,6 +54,7 @@ export default function LoginSignup() {
                   <option value="patient">Patient</option>
                   <option value="doctor">Doctor</option>
                   <option value="pharmacy">Pharmacy</option>
+                  <option value="hospital">Hospital</option>
                 </select>
                 {form.role === 'patient' && (
                   <>
