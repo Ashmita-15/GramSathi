@@ -4,7 +4,7 @@ import Dashboard from '../components/Dashboard'
 import EnhancedSymptomChecker from '../components/EnhancedSymptomChecker'
 import VideoCall from '../components/VideoCall'
 import ProfileSection from '../components/ProfileSection'
-import AppointmentBooking from '../components/AppointmentBooking'
+import AppointmentBooking from '../components/AppointmentBooking';
 import HealthRecords from '../components/HealthRecords'
 import DoctorsList from '../components/DoctorsList'
 import api from '../services/api'

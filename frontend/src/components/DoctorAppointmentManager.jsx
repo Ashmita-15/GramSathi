@@ -287,6 +287,51 @@ export default function DoctorAppointmentManager({ onJoinRoom }) {
                   )}
                 </div>
 
+                {/* Media Attachments */}
+                {appointment.attachments && appointment.attachments.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">📹 Patient Media Attachments:</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {appointment.attachments.map((attachment, index) => (
+                        <div key={index} className="bg-white border rounded-lg p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                              <span className="text-lg mr-2">
+                                {attachment.mimeType?.startsWith('video') ? '🎬' : '🎵'}
+                              </span>
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {attachment.fileName || `${attachment.mimeType?.startsWith('video') ? 'Video' : 'Audio'} File`}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {attachment.mimeType} • {Math.round(attachment.fileSize / 1024)}KB
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-1">
+                              <a
+                                href={`http://localhost:5000/api/appointments/media/${attachment.filename}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium"
+                              >
+                                View
+                              </a>
+                              <a
+                                href={`http://localhost:5000/api/appointments/media/${attachment.filename}`}
+                                download={attachment.fileName}
+                                className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs font-medium"
+                              >
+                                📥
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-4 border-t">
                   {appointment.status === 'pending' && (

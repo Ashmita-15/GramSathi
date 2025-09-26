@@ -15,7 +15,17 @@ const appointmentSchema = new mongoose.Schema({
     consultationType: { type: String, enum: ['video', 'chat'], default: 'video' },
     doctorNotes: { type: String }, // Doctor's notes after confirmation/consultation
     patientNotes: { type: String }, // Patient's notes
-    rejectionReason: { type: String } // Reason if doctor rejects the appointment
+    rejectionReason: { type: String }, // Reason if doctor rejects the appointment
+    // Media attachments from patient
+    attachments: [{
+        type: { type: String, enum: ['video', 'audio'], required: true },
+        fileName: { type: String, required: true }, // Original filename
+        filename: { type: String, required: true }, // Server-generated filename
+        filePath: { type: String, required: true },
+        fileSize: { type: Number, required: true },
+        mimeType: { type: String, required: true },
+        uploadedAt: { type: Date, default: Date.now }
+    }]
 }, { timestamps: true });
 
 export default mongoose.model('Appointment', appointmentSchema);

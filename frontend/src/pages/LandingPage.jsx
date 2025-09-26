@@ -43,22 +43,30 @@ export default function LandingPage() {
   return (
     <div className="w-full">
       {/* Hero Section - Full Width */}
-      <section className="relative overflow-hidden w-full min-h-[70vh] bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative z-10 flex flex-col justify-center items-center text-white px-6 py-20 min-h-[70vh]">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-center max-w-4xl leading-tight">
+      <section 
+        className="relative overflow-hidden w-full min-h-[70vh] bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800"
+        style={{
+          backgroundImage: `url(${heroBanner})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'right center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="relative z-10 flex flex-col justify-center items-end text-white px-6 py-20 min-h-[70vh] ml-auto mr-16 md:mr-32">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-center max-w-4xl leading-tight text-white mr-16 md:mr-32">
             {t('hero.title')}
           </h1>
-          <p className="text-xl md:text-2xl max-w-3xl text-center font-light mb-10 text-blue-100">
+          <p className="text-xl md:text-2xl max-w-3xl text-right font-light mb-10 text-white-500 mr-22 md:mr-40">
             {t('hero.subtitle')}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 mr-8 md:mr-16">
             {!JSON.parse(localStorage.getItem('user') || 'null') ? (
-              <Link to="/login" className="btn-primary text-lg px-8 py-4 bg-white text-blue-700 hover:bg-blue-50 font-semibold">
+              <Link to="/login" className="btn-primary text-lg px-8 py-4 bg-white text-blue-800 hover:bg-blue-50 font-semibold mr-8 md:mr-27">
                 Get Started Today
               </Link>
             ) : (
-              <Link to={`/${JSON.parse(localStorage.getItem('user')).role}`} className="btn-primary text-lg px-8 py-4 bg-white text-blue-700 hover:bg-blue-50 font-semibold">
+              <Link to={`/${JSON.parse(localStorage.getItem('user')).role}`} className="btn-primary text-lg px-8 py-4 bg-white text-blue-800 hover:bg-blue-50 font-semibold">
                 Go to Dashboard
               </Link>
             )}

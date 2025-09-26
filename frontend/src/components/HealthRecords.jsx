@@ -32,6 +32,48 @@ export default function HealthRecords() {
     return date.toLocaleString();
   };
 
+  const handleDownloadRecord = async (recordId, filename) => {
+    try {
+      const response = await api.get(`/records/${user.id}/download/${recordId}`, {
+        responseType: 'blob',
+      });
+      
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading record:', error);
+      setError('Failed to download the record. Please try again.');
+    }
+  };
+
+  const handleDownloadAllRecords = async (filename) => {
+    try {
+      const response = await api.get(`/records/${user.id}/download`, {
+        responseType: 'blob',
+      });
+      
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading all records:', error);
+      setError('Failed to download all records. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -62,17 +104,30 @@ export default function HealthRecords() {
                         <h3 className="font-medium">Date: {formatDate(record.createdAt)}</h3>
                         <p className="text-sm text-gray-600">Doctor: {record.doctorId?.name || 'Unknown'}</p>
                       </div>
-                      <a 
-                        href={`/api/records/${user.id}/download/${record._id}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm flex items-center"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Download PDF
-                      </a>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleDownloadRecord(record._id, `health-record-${record._id}.pdf`)}
+                          className="text-blue-600 hover:text-blue-800 text-sm flex items-center px-2 py-1 border border-blue-200 rounded hover:bg-blue-50 transition-colors"
+                          title="Download this record as PDF"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          PDF
+                        </button>
+                        {records.length > 1 && (
+                          <button 
+                            onClick={() => handleDownloadAllRecords('all-health-records.pdf')}
+                            className="text-green-600 hover:text-green-800 text-sm flex items-center px-2 py-1 border border-green-200 rounded hover:bg-green-50 transition-colors"
+                            title="Download all health records as PDF"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            All PDF
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="p-4">

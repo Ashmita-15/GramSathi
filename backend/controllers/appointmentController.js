@@ -11,6 +11,32 @@ export const bookAppointment = async (req, res) => {
             });
         }
         
+        // Process uploaded attachments if any
+        const attachments = [];
+        if (req.files && req.files.length > 0) {
+            console.log(`Processing ${req.files.length} uploaded files:`);
+            req.files.forEach((file, index) => {
+                console.log(`File ${index + 1}:`, {
+                    originalname: file.originalname,
+                    filename: file.filename,
+                    mimetype: file.mimetype,
+                    size: file.size,
+                    path: file.path
+                });
+                
+                attachments.push({
+                    type: file.mimetype.startsWith('video') ? 'video' : 'audio',
+                    fileName: file.originalname,
+                    filePath: file.path,
+                    fileSize: file.size,
+                    mimeType: file.mimetype,
+                    filename: file.filename // Add the server filename for serving
+                });
+            });
+        }
+        
+        console.log('Prepared attachments for DB:', attachments);
+        
         // Create appointment with pending status
         const appointmentData = {
             patientId,
@@ -18,7 +44,8 @@ export const bookAppointment = async (req, res) => {
             requestedDate: new Date(requestedDate),
             symptoms: symptoms || '',
             consultationType: consultationType || 'video',
-            status: 'pending'
+            status: 'pending',
+            attachments
         };
         
         const appointment = await Appointment.create(appointmentData);
