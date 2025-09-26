@@ -8,7 +8,28 @@ export default defineConfig({
     host: true
   },
   define: {
-    global: 'window',
+    global: 'globalThis',
+  },
+  resolve: {
+    alias: {
+      stream: 'stream-browserify',
+      buffer: 'buffer',
+      process: 'process/browser',
+      util: 'util'
+    }
+  },
+  optimizeDeps: {
+    include: [
+      'simple-peer',
+      'buffer',
+      'process',
+      'stream-browserify'
+    ]
+  },
+  build: {
+    commonjsOptions: {
+      include: [/simple-peer/, /node_modules/]
+    }
   }
 })
 

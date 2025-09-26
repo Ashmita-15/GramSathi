@@ -41,9 +41,10 @@ export default function DoctorDetails() {
     
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const userId = user.id || user._id;
       const appointmentData = {
         doctorId: doctor._id,
-        patientId: user.id || user._id, // Handle both 'id' and '_id' fields
+        patientId: userId,
         requestedDate: bookingData.date,
         symptoms: bookingData.symptoms,
         consultationType: bookingData.consultationType

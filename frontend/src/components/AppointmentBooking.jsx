@@ -43,7 +43,8 @@ export default function AppointmentBooking({ onJoinRoom, selectedDoctor: doctorF
 
   const loadUserAppointments = async () => {
     try {
-      const { data } = await api.get(`/appointments/patient/${user.id || user._id}`);
+      const userId = user.id || user._id;
+      const { data } = await api.get(`/appointments/patient/${userId}`);
       setUserAppointments(data);
     } catch (error) {
       console.error('Error loading appointments:', error);
@@ -64,9 +65,10 @@ export default function AppointmentBooking({ onJoinRoom, selectedDoctor: doctorF
 
     setLoading(true);
     try {
+      const userId = user.id || user._id;
       const appointmentData = {
         doctorId: selectedDoctor._id,
-        patientId: user.id || user._id, // Handle both 'id' and '_id' fields
+        patientId: userId,
         requestedDate: appointmentDate,
         symptoms: symptoms,
         consultationType: consultationType

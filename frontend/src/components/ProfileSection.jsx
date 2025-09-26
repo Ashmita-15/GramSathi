@@ -16,7 +16,8 @@ export default function ProfileSection() {
 
   const fetchProfile = async () => {
     try {
-      const { data } = await api.get(`/users/${user.id}`);
+      const userId = user.id || user._id;
+      const { data } = await api.get(`/users/${userId}`);
       setProfile(data);
       setFormData(data);
     } catch (error) {
@@ -31,12 +32,13 @@ export default function ProfileSection() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await api.put(`/users/${user.id}`, formData);
+      const userId = user.id || user._id;
+      const { data } = await api.put(`/users/${userId}`, formData);
       setProfile(data);
-      setIsEditing(false);
+      setEditing(false);
       setMessage({ text: 'Profile updated successfully', type: 'success' });
       
-      // Update user name in localStorage
+      // Update localStorage with new user data
       const updatedUser = { ...user, name: data.name };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       

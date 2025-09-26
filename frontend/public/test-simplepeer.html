@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SimplePeer Test</title>
+</head>
+<body>
+    <h1>SimplePeer Browser Test</h1>
+    <div id="result"></div>
+    <script type="module">
+        const result = document.getElementById('result');
+        
+        try {
+            // Test dynamic import
+            const SimplePeerModule = await import('/node_modules/simple-peer/simplepeer.min.js');
+            const SimplePeer = SimplePeerModule.default || window.SimplePeer;
+            
+            result.innerHTML += `<p>✅ SimplePeer loaded: ${typeof SimplePeer}</p>`;
+            result.innerHTML += `<p>✅ WEBRTC_SUPPORT: ${SimplePeer.WEBRTC_SUPPORT}</p>`;
+            
+            // Test creating a peer
+            const peer = new SimplePeer({ initiator: false });
+            result.innerHTML += `<p>✅ Peer created successfully: ${typeof peer}</p>`;
+            
+            peer.on('error', (err) => {
+                result.innerHTML += `<p>⚠️ Peer error: ${err.message}</p>`;
+            });
+            
+        } catch (error) {
+            result.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            console.error('SimplePeer test error:', error);
+        }
+    </script>
+</body>
+</html>

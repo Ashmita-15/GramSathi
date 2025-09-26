@@ -20,8 +20,14 @@ const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
 	cors: {
-        origin: process.env.FRONTEND_URL || '*',
-        methods: ['GET', 'POST']
+        origin: [
+            process.env.FRONTEND_URL || 'http://localhost:5173',
+            'http://localhost:5173',
+            'http://localhost:5174',
+            'http://localhost:3000'
+        ],
+        methods: ['GET', 'POST'],
+        credentials: true
     }
 });
 
@@ -29,7 +35,15 @@ const io = new SocketIOServer(server, {
 await connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: [
+        process.env.FRONTEND_URL || 'http://localhost:5173',
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:3000'
+    ],
+    credentials: true
+}));
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(attachSocketIO(io)); // Attach socket.io to requests
