@@ -4,7 +4,7 @@ import Dashboard from '../components/Dashboard'
 import api from '../services/api'
 import { io } from 'socket.io-client'
 
-const SOCKET_URL = import.meta.env.VITE_SIGNAL_URL || 'http://localhost:5000'
+const SOCKET_URL = import.meta.env.VITE_SIGNAL_URL
 
 export default function PharmacyShop() {
   const { pharmacyId } = useParams()
@@ -22,7 +22,10 @@ export default function PharmacyShop() {
   const [showCart, setShowCart] = useState(false)
 
   useEffect(() => {
-    const socket = io(SOCKET_URL)
+    const socket = io(SOCKET_URL, {
+      transports: ['websocket'],
+      withCredentials: true
+    })
     
     // Subscribe to real-time stock updates for this pharmacy
     socket.emit('subscribe-pharmacy-updates', pharmacyId)

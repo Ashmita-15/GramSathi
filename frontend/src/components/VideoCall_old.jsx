@@ -3,7 +3,7 @@ import io from 'socket.io-client'
 import SimplePeer from 'simple-peer'
 import api from '../services/api'
 
-const socket = io(import.meta.env.VITE_SIGNAL_URL || 'http://localhost:5000')
+const socket = io(import.meta.env.VITE_SIGNAL_URL)
 
 export default function VideoCall({ roomId }) {
   const myVideo = useRef(null)

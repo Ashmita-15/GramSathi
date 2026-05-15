@@ -3,7 +3,7 @@ import Dashboard from '../components/Dashboard'
 import api from '../services/api'
 import { io } from 'socket.io-client'
 
-const SOCKET_URL = import.meta.env.VITE_SIGNAL_URL || 'http://localhost:5000'
+const SOCKET_URL = import.meta.env.VITE_SIGNAL_URL
 
 export default function PharmacyDashboard() {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
@@ -51,7 +51,10 @@ export default function PharmacyDashboard() {
 
   useEffect(() => {
     console.log('PharmacyDashboard mounted, user:', user)
-    const socket = io(SOCKET_URL)
+    const socket = io(SOCKET_URL, {
+      transports: ['websocket'],
+      withCredentials: true
+    })
     
     // Join pharmacy room for real-time updates
     socket.emit('join-pharmacy-room', user.id)
