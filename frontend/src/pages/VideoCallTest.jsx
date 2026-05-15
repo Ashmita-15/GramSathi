@@ -12,7 +12,7 @@ export default function VideoCallTest() {
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/health')
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/health`)
         const data = await response.json()
         setBackendHealth(data.status === 'ok' ? 'Connected' : 'Error')
       } catch (error) {
@@ -23,7 +23,10 @@ export default function VideoCallTest() {
     checkBackend()
     
     // Test socket connection
-    const testSocket = io('http://localhost:5000')
+    const testSocket = io(import.meta.env.VITE_SIGNAL_URL, {
+      transports: ['websocket'],
+      withCredentials: true
+    })
     testSocket.on('connect', () => {
       setSocketConnected(true)
       console.log('✅ Socket.IO connected:', testSocket.id)
